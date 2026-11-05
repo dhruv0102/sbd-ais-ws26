@@ -72,17 +72,37 @@ func prepopulate(dbConn *gorm.DB) error {
 		Select("count(*) > 0").
 		Find(&exists).
 		Error
+
 	if err != nil {
 		return err
 	}
+
 	if exists {
 		// don't prepopulate if has already run
 		return nil
 	}
+
 	// create drink menu
-	// todo create drinks
-	// todo create orders
-	// GORM documentation can be found here: https://gorm.io/docs/index.html
+	drinks := []model.Drink{
+		{Name: "Coffee", Price: 2.50, Description: "Freshly brewed coffee"},
+		{Name: "Tea", Price: 2.00, Description: "Hot black tea"},
+		{Name: "Water", Price: 1.50, Description: "Still mineral water"},
+	}
+
+	if err := dbConn.Create(&drinks).Error; err != nil {
+		return err
+	}
+
+	// create orders
+	orders := []model.Order{
+		{DrinkID: drinks[0].ID, Amount: 2},
+		{DrinkID: drinks[1].ID, Amount: 1},
+		{DrinkID: drinks[2].ID, Amount: 3},
+	}
+
+	if err := dbConn.Create(&orders).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
